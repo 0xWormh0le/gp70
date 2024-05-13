@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import richieRich from "../../assets/richieRich.webp";
 import profilePicture from "../../assets/profilePicture.jpeg";
+import RRML2HTML from "../../../backend/utils/RRML2HTML";
 
 export const ChatResponse = ({ response }) => (
   <div className="p-10 prose bg-white my-6 rounded-lg mx-auto w-full">
@@ -17,7 +18,7 @@ export const ChatResponse = ({ response }) => (
       />
       <div className="font-semibold text-lg">Richie Rich</div>
     </div>
-    <div className="" dangerouslySetInnerHTML={{ __html: response }} />
+    <div className="" dangerouslySetInnerHTML={{ __html: RRML2HTML(response) }} />
   </div>
 );
 

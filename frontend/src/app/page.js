@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import { getPromptResponse } from "../../api/getPromptResponse";
 import { ChatResponse, ChatPrompt, TextArea } from "../components/chat";
 
 const agentTypes = {
@@ -38,11 +37,31 @@ export default function Home() {
     try {
       setIsLoadingResponse(true);
       addMessage(prompt, agentTypes.user);
-      const response = await getPromptResponse(prompt);
-      addMessage(response, agentTypes.richieRich);
+      addMessage("", agentTypes.richieRich);
+
+      const ws = new WebSocket("ws://localhost:8081/v1/richie-rich");
+      
+      ws.addEventListener("open", () => {
+        ws.send(prompt);
+        ws.addEventListener("message", (value) => {
+          setMessages(prev => {
+            const [last] = prev.slice(-1)
+            return prev.slice(0, prev.length - 1).concat({
+              agent: last.agent,
+              contents: last.contents + value.data
+            })
+          });
+        })
+      })
+
+      ws.addEventListener("error", e => {
+        throw new Error(e)
+      })
+
       setPrompt("");
       setIsLoadingResponse(false);
     } catch (error) {
+      console.error(error)
       setError("An error occurred. Please try again.");
       setIsLoadingResponse(false);
     }
